@@ -59,6 +59,18 @@ func checkBoard(board [9]int) int {
 	sums[6] = board[0] + board[4] + board[8]
 	sums[7] = board[2] + board[4] + board[6]
 
+	empty := make([]int, 0)
+
+	for i, value := range board {
+		if value == 0 {
+			empty = append(empty, i)
+		}
+	}
+
+	if len(empty) == 0 {
+		return 3
+	}
+
 	for _, value := range sums {
 		if value == 3 {
 			return 1
@@ -76,6 +88,8 @@ func predict(board [9]int, computer bool, predicting bool, field int) (int, int)
 			return field, -10
 		} else if checkBoard(board) == 2 {
 			return field, 10
+		} else if checkBoard(board) == 3 {
+			return field, 0
 		}
 	}
 
@@ -101,7 +115,7 @@ func predict(board [9]int, computer bool, predicting bool, field int) (int, int)
 
 		predField, predScore := predict(newboard, !computer, true, field)
 
-		if predScore >= bestScore {
+		if predScore > bestScore {
 			bestField = predField
 			bestScore = predScore
 		}
@@ -110,11 +124,6 @@ func predict(board [9]int, computer bool, predicting bool, field int) (int, int)
 	}
 
 	return bestField, bestScore
-}
-
-func bestField(board [9]int) int {
-	field, _ := predict(board, true, false, 0)
-	return field
 }
 
 func main() {
@@ -128,7 +137,8 @@ func main() {
 
 		if turn%2 == 0 {
 			fmt.Println("It's", Bold(Red("computer's")), "turn")
-			board[bestField(board)] = 10
+			field, _ := predict(board, true, false, 0)
+			board[field] = 10
 		} else {
 			fmt.Println("It's", Bold(Green("player's")), "turn")
 			board = promptField(board)
