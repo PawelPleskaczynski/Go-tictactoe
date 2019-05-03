@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	. "github.com/logrusorgru/aurora"
 )
@@ -67,16 +69,16 @@ func checkBoard(board [9]int) int {
 		}
 	}
 
-	if len(empty) == 0 {
-		return 3
-	}
-
 	for _, value := range sums {
 		if value == 3 {
 			return 1
 		} else if value == 30 {
 			return 2
 		}
+	}
+
+	if len(empty) == 0 {
+		return 3
 	}
 
 	return 0
@@ -101,6 +103,13 @@ func predict(board [9]int, computer bool, predicting bool, field int) (int, int)
 		}
 	}
 
+	if len(empty)+1 == len(board) {
+		rand.Seed(time.Now().UnixNano())
+		random := rand.Intn(len(empty))
+		randomField := empty[random]
+		return randomField, 0
+	}
+
 	newboard := board
 
 	var bestField int
@@ -115,7 +124,7 @@ func predict(board [9]int, computer bool, predicting bool, field int) (int, int)
 
 		predField, predScore := predict(newboard, !computer, true, field)
 
-		if predScore > bestScore {
+		if predScore >= bestScore {
 			bestField = predField
 			bestScore = predScore
 		}
@@ -153,7 +162,12 @@ func main() {
 		case 2:
 			showBoard(board)
 			fmt.Println(Bold(Red("Computer")), "won!")
+		case 3:
+			showBoard(board)
+			fmt.Println("It's a", Bold("tie"), "!")
 		}
 		turn++
 	}
 }
+
+// 1 9 4 2
